@@ -12,9 +12,12 @@ You'll edit this file in Part 4.
 """
 import csv
 import json
+import typing
+from pathlib import Path
+from models import CloseApproach
 
 
-def write_to_csv(results, filename):
+def write_to_csv(results: typing.Iterable[CloseApproach], filename: str):
     """Write an iterable of `CloseApproach` objects to a CSV file.
 
     The precise output specification is in `README.md`. Roughly, each output row
@@ -28,10 +31,19 @@ def write_to_csv(results, filename):
         'datetime_utc', 'distance_au', 'velocity_km_s',
         'designation', 'name', 'diameter_km', 'potentially_hazardous'
     )
-    # TODO: Write the results to a CSV file, following the specification in the instructions.
+
+    with open(filename, 'w') as fout:
+        writer = csv.DictWriter(fout, fieldnames=fieldnames)
+        writer.writeheader()
+        for entry in results:
+            content = {**entry.serialize(), **entry.neo.serialize()}
+            content["name"] = content["name"] if content["name"] is not None else ""
+            content["potentially_hazardous"] = "True" if content["potentially_hazardous"] else "False"
+
+            writer.writerow(content)
 
 
-def write_to_json(results, filename):
+def write_to_json(results: typing.Iterable[CloseApproach], filename: str):
     """Write an iterable of `CloseApproach` objects to a JSON file.
 
     The precise output specification is in `README.md`. Roughly, the output is a
@@ -42,4 +54,24 @@ def write_to_json(results, filename):
     :param results: An iterable of `CloseApproach` objects.
     :param filename: A Path-like object pointing to where the data should be saved.
     """
-    # TODO: Write the results to a JSON file, following the specification in the instructions.
+    approaches = []
+    for result in results:
+        content = {**result.serialize(), **result.neo.serialize()}
+        content["name"] = content["name"] if content["name"] is not None else ""
+        content["potentially_hazardous"] = bool(1) if content["potentially_hazardous"] else bool(0)
+        approaches.append(
+            {
+                "datetime_utc": content["datetime_utc"],
+                "distance_au": content["distance_au"],
+                "velocity_km_s": content["velocity_km_s"],
+                "neo": {
+                    "designation": content["designation"],
+                    "name": content["name"],
+                    "diameter_km": content["diameter_km"],
+                    "potentially_hazardous": content["potentially_hazardous"],
+                },
+            }
+        )
+
+    with open(filename, "w") as fout:
+        json.dump(approaches, fout, indent=2)

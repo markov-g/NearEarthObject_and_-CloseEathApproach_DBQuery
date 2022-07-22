@@ -17,6 +17,9 @@ iterator.
 You'll edit this file in Tasks 3a and 3c.
 """
 import operator
+from typing import Iterator, Optional
+from itertools import islice
+
 
 from models import NearEarthObject, CloseApproach
 
@@ -140,7 +143,7 @@ def create_filters(
     if date:
         filters.append(DateFilter(operator.eq, date))
     if start_date:
-        filters.append(DateFilter(operator.gt, date))
+        filters.append(DateFilter(operator.ge, start_date))
     if end_date:
         filters.append(DateFilter(operator.le, end_date))
     if distance_min:
@@ -161,7 +164,7 @@ def create_filters(
     return filters
 
 
-def limit(iterator, n=None):
+def limit(iterator: Iterator, n: Optional[int]=None):
     """Produce a limited stream of values from an iterator.
 
     If `n` is 0 or None, don't limit the iterator at all.
@@ -170,5 +173,10 @@ def limit(iterator, n=None):
     :param n: The maximum number of values to produce.
     :yield: The first (at most) `n` values from the iterator.
     """
-    # TODO: Produce at most `n` values from the given iterator.
-    return iterator
+
+    if n == 0 or n is None:
+        for i in iterator:
+            yield i
+    else:
+        for i in islice(iterator, 0, n):
+            yield i
