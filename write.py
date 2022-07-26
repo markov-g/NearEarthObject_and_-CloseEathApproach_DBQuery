@@ -12,12 +12,13 @@ You'll edit this file in Part 4.
 """
 import csv
 import json
+import math
 import typing
-from pathlib import Path
+from typing import Iterable
 from models import CloseApproach
 
 
-def write_to_csv(results: typing.Iterable[CloseApproach], filename: str):
+def write_to_csv(results: Iterable[CloseApproach], filename: str):
     """Write an iterable of `CloseApproach` objects to a CSV file.
 
     The precise output specification is in `README.md`. Roughly, each output row
@@ -31,19 +32,23 @@ def write_to_csv(results: typing.Iterable[CloseApproach], filename: str):
         'datetime_utc', 'distance_au', 'velocity_km_s',
         'designation', 'name', 'diameter_km', 'potentially_hazardous'
     )
-
     with open(filename, 'w') as fout:
         writer = csv.DictWriter(fout, fieldnames=fieldnames)
         writer.writeheader()
-        for entry in results:
-            content = {**entry.serialize(), **entry.neo.serialize()}
-            content["name"] = content["name"] if content["name"] is not None else ""
-            content["potentially_hazardous"] = "True" if content["potentially_hazardous"] else "False"
+        for i in results:
+            entry = {}
+            entry['datetime_utc'] = i.time_str
+            entry['distance_au'] = i.distance
+            entry['velocity_km_s'] = i.velocity
+            entry['designation'] = i.neo.designation
+            entry['name'] = i.neo.name if i.neo.name else ''
+            entry['diameter_km'] = i.neo.diameter if i.neo.diameter else math.nan
+            entry['potentially_hazardous'] = i.neo.hazardous
 
-            writer.writerow(content)
+            writer.writerow(entry)
 
 
-def write_to_json(results: typing.Iterable[CloseApproach], filename: str):
+def write_to_json(results:Iterable[CloseApproach], filename: str):
     """Write an iterable of `CloseApproach` objects to a JSON file.
 
     The precise output specification is in `README.md`. Roughly, the output is a
@@ -54,24 +59,20 @@ def write_to_json(results: typing.Iterable[CloseApproach], filename: str):
     :param results: An iterable of `CloseApproach` objects.
     :param filename: A Path-like object pointing to where the data should be saved.
     """
-    approaches = []
-    for result in results:
-        content = {**result.serialize(), **result.neo.serialize()}
-        content["name"] = content["name"] if content["name"] is not None else ""
-        content["potentially_hazardous"] = bool(1) if content["potentially_hazardous"] else bool(0)
-        approaches.append(
-            {
-                "datetime_utc": content["datetime_utc"],
-                "distance_au": content["distance_au"],
-                "velocity_km_s": content["velocity_km_s"],
-                "neo": {
-                    "designation": content["designation"],
-                    "name": content["name"],
-                    "diameter_km": content["diameter_km"],
-                    "potentially_hazardous": content["potentially_hazardous"],
-                },
-            }
-        )
+
+    json_data = []
+    for i in results:
+        entry_ca = {}
+        entry_neo = {}
+        entry_ca['datetime_utc'] = i.time_str
+        entry_ca['distance_au'] = i.distance
+        entry_ca['velocity_km_s'] = i.velocity
+        entry_neo['designation'] = i.neo.designation
+        entry_neo['name'] = i.neo.name if i.neo.name else ''
+        entry_neo['diameter_km'] = i.neo.diameter if i.neo.diameter else math.nan
+        entry_neo['potentially_hazardous'] = i.neo.hazardous
+        entry_ca['neo'] = entry_neo
+        json_data.append(entry_ca)
 
     with open(filename, "w") as fout:
-        json.dump(approaches, fout, indent=2)
+        json.dump(json_data, fout, indent=2)
