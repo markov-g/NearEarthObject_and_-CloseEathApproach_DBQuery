@@ -21,7 +21,7 @@ from typing import Iterator, Optional
 from itertools import islice
 
 
-from models import NearEarthObject, CloseApproach
+from models import CloseApproach
 
 
 class UnsupportedCriterionError(NotImplementedError):
@@ -77,27 +77,32 @@ class AttributeFilter:
         return f"{self.__class__.__name__}(op=operator.{self.op.__name__}, value={self.value})"
 
 class DateFilter(AttributeFilter):
+    """Class representing a Date AttributeFilter"""
     @classmethod
     def get(cls, approach):
         return approach.time.date()
 
 
 class DistanceFilter(AttributeFilter):
+    """Class representing a Distance AttributeFilter"""
     @classmethod
     def get(cls, approach: CloseApproach):
         return approach.distance
 
 class VelocityFilter(AttributeFilter):
+    """Class representing a Velocity AttributeFilter"""
     @classmethod
     def get(cls, approach: CloseApproach):
         return approach.velocity
 
 class DiameterFilter(AttributeFilter):
+    """Class representing a Diameter AttributeFilter"""
     @classmethod
     def get(cls, approach: CloseApproach):
         return approach.neo.diameter
 
 class HazardousFilter(AttributeFilter):
+    """Class representing a Hazardous AttributeFilter"""
     @classmethod
     def get(cls, approach: CloseApproach):
         return approach.neo.hazardous
@@ -138,7 +143,7 @@ def create_filters(
     :param hazardous: Whether the NEO of a matching `CloseApproach` is potentially hazardous.
     :return: A collection of filters for use with `query`.
     """
-    filters = list()
+    filters = []
 
     if date:
         filters.append(DateFilter(operator.eq, date))

@@ -17,7 +17,6 @@ quirks of the data set, such as missing names and unknown diameters.
 
 You'll edit this file in Task 1.
 """
-import typing
 from typing import Optional, List
 
 from helpers import cd_to_datetime, datetime_to_str
@@ -35,6 +34,7 @@ class NearEarthObject:
     initialized to an empty collection, but eventually populated in the
     `NEODatabase` constructor.
     """
+
     # If you make changes, be sure to update the comments in this file.
     def __init__(self, designation: str, name: Optional[str], diameter: float, hazardous: bool):
         """Create a new `NearEarthObject`.
@@ -59,7 +59,7 @@ class NearEarthObject:
     @property
     def fullname(self):
         """Return a representation of the full name of this NEO."""
-        return f'{self.designation!r} {self.name if self.name != None else ""}'
+        return f'{self.designation!r} {self.name if self.name is not None else ""}'
 
     def __str__(self):
         """Return `str(self)`."""
@@ -86,6 +86,7 @@ class CloseApproach:
     private attribute, but the referenced NEO is eventually replaced in the
     `NEODatabase` constructor.
     """
+
     # If you make changes, be sure to update the comments in this file.
     def __init__(self, designation: str, time: str, distance: float, velocity: float):
         """Create a new `CloseApproach`.

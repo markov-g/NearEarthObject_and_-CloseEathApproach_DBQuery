@@ -17,8 +17,10 @@ import math
 import pathlib
 
 from models import NearEarthObject, CloseApproach
+
 PROJECT_ROOT = pathlib.Path(__file__).parent.resolve()
 DATA_ROOT = PROJECT_ROOT / 'data'
+
 
 def load_neos(neo_csv_path: str = DATA_ROOT.joinpath('neos.csv')) -> NearEarthObject:
     """Read near-Earth object information from a CSV file.
@@ -29,17 +31,16 @@ def load_neos(neo_csv_path: str = DATA_ROOT.joinpath('neos.csv')) -> NearEarthOb
 
     neos: NearEarthObject = []
 
-    with open(neo_csv_path, 'r') as file_in:
+    with open(neo_csv_path, 'r', encoding="utf-8") as file_in:
         csv_reader = csv.DictReader(file_in)
-        line = {}
         for row in csv_reader:
-            nm = row['name'] or None
+            name = row['name'] or None
             dia = float(row["diameter"]) if row["diameter"] else math.nan
             haz = False if row["pha"] in ["", "N"] else True
-            neos.append(NearEarthObject(designation = row['pdes'],
-                                        name = nm,
-                                        diameter = dia,
-                                        hazardous = haz)
+            neos.append(NearEarthObject(designation=row['pdes'],
+                                        name=name,
+                                        diameter=dia,
+                                        hazardous=haz)
                         )
 
     return neos
@@ -53,14 +54,14 @@ def load_approaches(cad_json_path: str = DATA_ROOT.joinpath('cad.json')) -> Clos
     """
     close_approaches = []
 
-    with open(cad_json_path, 'r') as file_in:
+    with open(cad_json_path, 'r', encoding="utf-8") as file_in:
         close_approach_data = json.load(file_in)
         for data_entry in close_approach_data['data']:
             tmp_dict = dict(zip(close_approach_data['fields'], data_entry))
             close_approaches.append(CloseApproach(designation=tmp_dict["des"],
-                                                  time = tmp_dict["cd"],
-                                                  distance =float(tmp_dict["dist"]),
-                                                  velocity =float(tmp_dict["v_rel"]))
+                                                  time=tmp_dict["cd"],
+                                                  distance=float(tmp_dict["dist"]),
+                                                  velocity=float(tmp_dict["v_rel"]))
                                     )
 
     return close_approaches

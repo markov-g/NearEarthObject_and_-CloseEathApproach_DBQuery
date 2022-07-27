@@ -10,9 +10,9 @@ data on NEOs and close approaches extracted by `extract.load_neos` and
 `extract.load_approaches`.
 
 """
+from typing import List, Optional
 from filters import AttributeFilter
 from models import NearEarthObject, CloseApproach
-from typing import List, Optional
 
 
 class NEODatabase:
@@ -23,6 +23,7 @@ class NEODatabase:
     help fetch NEOs by primary designation or by name and to help speed up
     querying for close approaches that match criteria.
     """
+
     def __init__(self, neos: List[NearEarthObject], approaches: List[CloseApproach]):
         """Create a new `NEODatabase`.
 
@@ -48,8 +49,9 @@ class NEODatabase:
         self._name2neo_dict = {neo.name: neo for neo in self._neos}
 
         for approach in self._approaches:
-            neo4approach:Optional[NearEarthObject] = self._dest2neo_dict.get(approach._designation, None)
-            if neo4approach != None:
+            neo4approach: Optional[NearEarthObject] = \
+                self._dest2neo_dict.get(approach._designation, None)
+            if neo4approach is not None:
                 approach.neo = neo4approach
                 neo4approach.approaches.append(approach)
 
@@ -86,7 +88,7 @@ class NEODatabase:
 
         return self._name2neo_dict.get(name, None)
 
-    def query(self, filters:List[AttributeFilter]=()):
+    def query(self, filters: List[AttributeFilter] = ()):
         """Query close approaches to generate those that match a collection of filters.
 
         This generates a stream of `CloseApproach` objects that match all of the
